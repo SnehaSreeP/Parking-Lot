@@ -4,10 +4,12 @@ import org.example.parking.exceptions.ParkingLotFullException;
 import org.example.parking.exceptions.VehicleNotparkedException;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class parkingLotTest {
-    ParkingLot parkingLot = new ParkingLot();
+    ParkingLot parkingLot = new ParkingLot(3);
     @Test
     public void carIsParkedToCatchTheFlight() throws ParkingLotFullException {
         Vehicle car = new Car();
@@ -61,7 +63,7 @@ public class parkingLotTest {
         car1 = parkingLot.park(car1);
         car2 = parkingLot.park(car2);
         car3 = parkingLot.park(car3);
-        assertEquals(parkingLot.notifyOwner, "Parking slots are full");
+        assertEquals(parkingLot.notification.notifyOwner, "Parking slots are full");
     }
 
     @Test
@@ -72,7 +74,7 @@ public class parkingLotTest {
         car1 = parkingLot.park(car1);
         car2 = parkingLot.park(car2);
         car3 = parkingLot.park(car3);
-        assertEquals(parkingLot.notifyTrafficCop, "Parking slots are full please divert traffic");
+        assertEquals(parkingLot.notification.notifyTrafficCop, "Parking slots are full please divert traffic");
     }
 
 //    As a parking lot owner I would like to be notified when the parking lot is available for parking
@@ -89,11 +91,11 @@ public class parkingLotTest {
         car2 = parkingLot.park(car2);
         car3 = parkingLot.park(car3);
         car1 = parkingLot.unpark(car1);
-        assertEquals(parkingLot.notifyOwner,"Parking slots are available");
+        assertEquals(parkingLot.notification.notifyOwner,"Parking slots are available");
     }
 
     @Test
-    public void notifyTrafficCopWhenParkingLotIsAvailable() throws ParkingLotFullException, VehicleNotparkedException {
+    public void notifySecurityWhenParkingLotIsAvailable() throws ParkingLotFullException, VehicleNotparkedException {
         Vehicle car1 = new Car();
         Vehicle car2 = new Car();
         Vehicle car3 = new Car();
@@ -101,6 +103,32 @@ public class parkingLotTest {
         car2 = parkingLot.park(car2);
         car3 = parkingLot.park(car3);
         car1 = parkingLot.unpark(car1);
-        assertEquals(parkingLot.notifyTrafficCop,"Parking slots are available please stop diverting traffic");
+        assertEquals(parkingLot.notification.notifySecurity,"Parking slots are available");
+    }
+
+//    Requirement 7 - Valet / Attendant
+//    Valet managing multiple parking lots.
+//    A Valet is responsible for parking and unparking cars from multiple parking lots. When asked to park a car,
+//    valet parks the car in the first lot with free space.
+
+    @Test
+    public void valetParkingCarInParkingLot() throws ParkingLotFullException {
+        ParkingLot parkingLot1 = new ParkingLot(2);
+        ParkingLot parkingLot2 = new ParkingLot(1);
+        ArrayList<ParkingLot> parkingLots = new ArrayList<>();
+        parkingLots.add(parkingLot1);
+        parkingLots.add(parkingLot2);
+        Valet valet = new Valet(parkingLots);
+        Vehicle car1 = new Car();
+        car1 = valet.park(car1);
+        assertTrue(car1.isParked);
+        Vehicle car2 = new Car();
+        car2 = valet.park(car2);
+        assertTrue(car2.isParked);
+        Vehicle car3 = new Car();
+        car3 = valet.park(car3);
+        assertTrue(car3.isParked);
+        Vehicle car4 = new Car();
+        assertThrows(ParkingLotFullException.class,() -> valet.park(car4));
     }
 }

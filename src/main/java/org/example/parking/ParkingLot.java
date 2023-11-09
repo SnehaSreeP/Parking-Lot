@@ -10,16 +10,20 @@ public class ParkingLot {
 
     private List<Vehicle> listOfParkedVehicles = new ArrayList<Vehicle>();
 
-    public String notifyOwner = "Slots available";
-    public String notifyTrafficCop = "Slots available";
-    ParkingSlot slot = new ParkingSlot();
+    public Notification notification = new Notification();
+
+    public int capacity;
+
+    public ParkingLot(int capacity) {
+        this.capacity = capacity;
+    }
+
     public Vehicle park(Vehicle vehicle) throws ParkingLotFullException {
-        int slotsAvailable = slot.numberOfSlotsAvailable;
-        if(slotsAvailable > 0) {
-            slot.numberOfSlotsAvailable--;
+        if(capacity > 0) {
+            capacity--;
             vehicle.isParked = true;
             listOfParkedVehicles.add(vehicle);
-            setNotifyMessage();
+            notification.setNotifyMessage(capacity);
             return vehicle;
         }
         else {
@@ -31,8 +35,8 @@ public class ParkingLot {
         if(listOfParkedVehicles.contains(car1)) {
             listOfParkedVehicles.remove(car1);
             car1.isParked = false;
-            slot.numberOfSlotsAvailable++;
-            setNotifyMessage();
+            capacity++;
+            notification.setNotifyMessage(capacity);
         } else {
             throw new VehicleNotparkedException();
         }
@@ -40,13 +44,4 @@ public class ParkingLot {
         return car1;
     }
 
-    public void setNotifyMessage() {
-        if(slot.numberOfSlotsAvailable == 0) {
-            this.notifyOwner = "Parking slots are full";
-            this.notifyTrafficCop = "Parking slots are full please divert traffic";
-        } else if(slot.numberOfSlotsAvailable > 0){
-            this.notifyOwner = "Parking slots are available";
-            this.notifyTrafficCop = "Parking slots are available please stop diverting traffic";
-        }
-    }
 }
